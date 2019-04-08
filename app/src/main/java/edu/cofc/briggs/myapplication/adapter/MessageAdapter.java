@@ -1,4 +1,4 @@
-package edu.cofc.myapplication.adapter;
+package edu.cofc.briggs.myapplication.adapter;
 
 import android.app.Activity;
 import android.content.Context;
@@ -12,8 +12,10 @@ import com.bumptech.glide.Glide;
 
 import java.util.List;
 
-import edu.cofc.briggs.myapplication.R;
+
 import edu.cofc.briggs.myapplication.model.FriendlyMessage;
+import edu.cofc.myapplication.R;
+
 
 public class MessageAdapter extends ArrayAdapter<FriendlyMessage> {
 
