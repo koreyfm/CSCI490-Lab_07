@@ -17,6 +17,12 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,13 +46,20 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton mPhotoPickerButton;
     private EditText mMessageEditText;
     private Button mSendButton;
+    private FirebaseDatabase mFirebaseDatabase;
+    private DatabaseReference mMessagesDatabaseReference;
 
     private String mUsername;
+
+    private ChildEventListener mChildEventListner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mFirebaseDatabase = FirebaseDatabase.getInstance();
+        mMessagesDatabaseReference = mFirebaseDatabase.getReference().child("messages");
 
         mUsername = ANONYMOUS;
 
@@ -64,6 +77,8 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialize progress bar
         mProgressBar.setVisibility(ProgressBar.INVISIBLE);
+
+        attachDatabaseReadListener();
 
         // ImagePickerButton shows an image picker to upload a image for a message
         mPhotoPickerButton.setOnClickListener(new View.OnClickListener() {
@@ -100,10 +115,16 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 // TODO: Send messages on click
 
+                FriendlyMessage friendlyMessage = new FriendlyMessage(mMessageEditText.getText().toString(), mUsername, null);
+                mMessagesDatabaseReference.push().setValue(friendlyMessage);
+
                 // Clear input box
                 mMessageEditText.setText("");
             }
         });
+
+
+
     }
 
     @Override
@@ -117,4 +138,44 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         return super.onOptionsItemSelected(item);
     }
+
+    private void attachDatabaseReadListener() {
+        if(mChildEventListner == null) {
+            mChildEventListner = new ChildEventListener() {
+                @Override
+                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                    // Method that gets called whenever a message gets inserted
+                    // It is also triggered for every message that is in the database
+                    // when the listener is first attached
+
+                }
+
+                @Override
+                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                    // Method that gets called when an existing message is changed
+
+                }
+
+                @Override
+                public void onChildRemoved(DataSnapshot dataSnapshot) {
+                    // Method that gets called when an existing message is deleted
+
+                }
+
+                @Override
+                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+                    // Method that gets called when an existing message changes position
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    // Method that gets called when some error occurred
+                }
+            };
+
+            mMessagesDatabaseReference.addChildEventListener(mChildEventListner);
+        }
+    }
+
+
 }
